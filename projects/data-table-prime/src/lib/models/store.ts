@@ -1,20 +1,16 @@
 import {Observable} from 'rxjs';
 import {LazyLoadData} from './table';
+import {Signal} from "@angular/core";
 
-export interface BaseStore {
+export interface BaseStoreI {
   /**
    * Init the state of service
    */
   initState: () => void;
   /**
-   * Load All data required for the store
-   * @param data {@link LazyLoadData}
-   */
-  loadAll: (data?: LazyLoadData | Partial<LazyLoadData>) => void;
-  /**
    * Load All data from server for print
    */
-  loadAllForExport: () => Observable<any>;
+  loadAllForExport: () => Signal<any> | Observable<any>;
   /**
    * Set selected item for actions
    * @param data type T as any
@@ -34,9 +30,21 @@ export interface BaseStore {
    * Delete Entity by id
    * @param id number
    */
-  delete: (id: number) => void;
+  delete: (id: number | string) => void;
   /**
    * Open modal for Add or Edit element type T
    */
-  openModalAddOrEdit: () => void;
+  openModalAddOrEdit: (dialog: boolean) => void;
+  /**
+   * Used for destroy all references
+   */
+  destroy: () => void;
+}
+
+export interface LoadAllRequestI {
+  /**
+   * Load All data required for the store
+   * @param data {@link LazyLoadData}
+   */
+  loadAll: (data?: LazyLoadData | Partial<LazyLoadData>) => void;
 }

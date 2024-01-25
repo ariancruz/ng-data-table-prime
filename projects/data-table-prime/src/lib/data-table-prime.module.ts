@@ -14,17 +14,32 @@ import {SplitButtonModule} from 'primeng/splitbutton';
 import {TranslateModule} from '@ngx-translate/core';
 
 // Components
-import {DataTablePrimeComponent} from './components/data-table/data-table-prime.component';
+import {DataTableComponent} from './components/data-table/data-table.component';
 // Pipes
+import {ColSpanPipe} from './pipes/col-span.pipe';
+import {ColHeaderPipe} from './pipes/col-header.pipe';
 import {AsyncTablePipe} from './pipes/async-table.pipe';
 import {AsyncNumberPipe} from './pipes/async-number.pipe';
+import {RowTemplatePipe} from './pipes/row-template.pipe';
+
+import {TableRowDirective} from './directives/table-row.directive';
+import {TableFooterDirective} from './directives/table-footer.directive';
+import {TableExpansionDirective} from './directives/table-expansion.directive';
 
 
 @NgModule({
   declarations: [
-    DataTablePrimeComponent,
+    DataTableComponent,
+
+    TableRowDirective,
+    TableFooterDirective,
+    TableExpansionDirective,
+
+    ColSpanPipe,
+    ColHeaderPipe,
+    AsyncTablePipe,
     AsyncNumberPipe,
-    AsyncTablePipe
+    RowTemplatePipe,
   ],
   imports: [
     CommonModule,
@@ -38,7 +53,7 @@ import {AsyncNumberPipe} from './pipes/async-number.pipe';
     SplitButtonModule,
   ],
   exports: [
-    DataTablePrimeComponent
+    DataTableComponent
   ]
 })
 export class DataTablePrimeModule {

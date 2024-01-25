@@ -1,0 +1,165 @@
+<div [ngClass]="{'justify-content-between': showCreate, 'justify-content-end': !showCreate}"
+     class="sm:flex align-items-center mb-3">
+  @if (showCreate && !itemsSplit.length) {
+    <button (click)="createItem()" class="p-button-outlined" icon="mdi {{iconCreate}}"
+            label="{{'common.create' | translate}}" tooltipPosition="top" type="button"
+            pButton pTooltip="{{'common.tooltip.create' | translate: {value: (name | translate)} }}"></button>
+  } @else if (showCreate && itemsSplit.length) {
+    <p-splitButton (onClick)="createItem()" [model]="itemsSplit" appendTo="body" icon="mdi {{iconCreate}}"
+                   pTooltip="{{'common.tooltip.create' | translate: {value: (name | translate)} }}"
+                   label="{{'common.create' | translate}}" styleClass="p-button-outlined" tooltipPosition="top"/>
+  }
+  <div>
+    <span class="p-input-icon-left">
+      <i class="mdi mdi-magnify"></i>
+      <input #inputSearch (input)="setGlobalFilter($event, dt)" pInputText
+             placeholder="{{'common.search' | translate}}" type="text"/>
+    </span>
+    @if (refreshBtn) {
+      <button (click)="refreshContentData(dt)" class="ml-2 p-button-rounded p-button-text" icon="mdi mdi-replay"
+              pButton pTooltip="{{'common.tooltip.refresh' | translate}}" tooltipPosition="left" type="button"></button>
+    }
+    @if (exportBtn) {
+      <button (click)="showPrintModal()" class="ml-2 p-button-rounded p-button-text" icon="mdi mdi-table-arrow-down"
+              pButton pTooltip="{{'common.tooltip.print' | translate}}" tooltipPosition="left" type="button"></button>
+    }
+  </div>
+</div>
+<p-table #dt (onLazyLoad)="loadCustomLazy($event)" (onRowReorder)=rowReorder($event,dt) [columns]="headers"
+         [dataKey]="dataKey" [first]="service.pageRecord" [lazyLoadOnInit]="service.lazyLoadOnInit"
+         [lazy]="service.serverSide" [paginator]="pagination" [resizableColumns]="true"
+         [rowsPerPageOptions]="rowsPerPageOptions" [rows]="service.pageSize"
+         [totalRecords]="service.total$() | asyncNumber" [value]="service.listEntities$() | asyncTable"
+         responsiveLayout="scroll" styleClass=" {{class}}"
+>
+  <ng-template let-columns pTemplate="header">
+    <tr>
+      @if (rowExpansion || rowDragAndDrop) {
+        <th [style.width.px]="50"></th>
+      }
+      @if (rowDragAndDrop) {
+        <th class="text-center">No.</th>
+      }
+      @for (item of columns | colHeader; track item) {
+        @if (!item.sort) {
+          <th [class]="item.class" [style.max-width.px]="item?.width">
+            {{ item.header | translate }}
+          </th>
+        } @else {
+          <th [class]="item.class" [pSortableColumn]="item?.sortField ? item?.sortField : item.field"
+              [style.max-width.px]="item?.width">
+            {{ item.header | translate }}
+            <p-sortIcon [field]="item?.sortField ? item?.sortField : item.field"></p-sortIcon>
+          </th>
+        }
+      }
+    </tr>
+  </ng-template>
+  <ng-template let-columns="columns" let-expanded="expanded" let-index="rowIndex" let-rowData pTemplate="body">
+    <tr [pReorderableRow]="index">
+      @if (rowExpansion || rowDragAndDrop) {
+        <td>
+          @if (rowExpansion) {
+            <button [icon]="expanded ? 'mdi mdi-chevron-down' : 'mdi mdi-chevron-right'" [pRowToggler]="rowData"
+                    class="p-button-text p-button-rounded p-button-plain" pButton type="button"></button>
+          }
+          @if (rowDragAndDrop) {
+            <button type="button" class="p-button-text p-button p-button-rounded">
+              <span pReorderableRowHandle class="mdi mdi-drag-variant"></span>
+            </button>
+          }
+        </td>
+        @if (rowDragAndDrop) {
+          <td class="text-center">
+            {{ index + 1 }}
+          </td>
+        }
+      }
+      @for (col of columns | colHeader; track col) {
+        <td [class]="col.class" [style.min-width.px]="col?.width">
+          <!--Template por pipes-->
+          @if (col?.pipe) {
+            <c-show-value [data]="{value: rowData[col.field], pipe: col.pipe, extraVal: col?.extraVal}"/>
+          } @else {
+            <!--Template custom-->
+            @if ((contentChildren | rowTemplate: col.field); as template) {
+              <!--Custom action template-->
+              @if (col.field === 'action' && action) {
+                <!--External template-->
+                <ng-template [ngTemplateOutletContext]="{$implicit: rowData, column:col, rowIndex: index}"
+                             [ngTemplateOutlet]="template.template"/>
+                <!--Default action template-->
+                <ng-template [ngTemplateOutletContext]="{$implicit: rowData}" [ngTemplateOutlet]="staticActions"/>
+                <!--Default contextAction-->
+                @if (contextAction) {
+                  <button (click)="setSelectedRow($event, rowData)" class="p-button-rounded p-button-text"
+                          icon="mdi mdi-dots-vertical" pButton type="button"></button>
+                }
+              } @else {
+                <!--Default other templates-->
+                <ng-container [ngTemplateOutletContext]="{$implicit: rowData, column:col, rowIndex: index}"
+                              [ngTemplateOutlet]="template.template"/>
+              }
+            } @else {
+              <!--Basic Flow-->
+              @if (col.field === 'action' && action) {
+                <!--Default action template-->
+                <ng-template [ngTemplateOutletContext]="{$implicit: rowData}" [ngTemplateOutlet]="staticActions"/>
+                <!--Default contextAction-->
+                @if (contextAction) {
+                  <button (click)="setSelectedRow($event, rowData)" class="p-button-rounded p-button-text"
+                          icon="mdi mdi-dots-vertical" pButton type="button"></button>
+                }
+              } @else {
+                <!--Plain Row-->
+                {{ rowData[col.field] | translate }}
+              }
+            }
+          }
+        </td>
+      }
+    </tr>
+  </ng-template>
+  <ng-template let-columns="columns" let-expand let-rowgroup="rowgroup" let-rowspan="rowspan" pTemplate="rowexpansion">
+    <ng-container [ngTemplateOutletContext]="{$implicit: expand, columns, rowspan, rowgroup}"
+                  [ngTemplateOutlet]="expansionRow.template"/>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    @if (rowFooter) {
+      <ng-container [ngTemplateOutlet]="footerRow.template"/>
+    }
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      @if (search) {
+        <td [attr.colspan]="headers | colSpan : rowExpansion : rowDragAndDrop"
+            class="justify-content-center text-2xl text-center">
+          {{ 'common.blankSearch' | translate:{value: search} }}
+        </td>
+      } @else if (!search) {
+        <td [attr.colspan]="headers | colSpan : rowExpansion : rowDragAndDrop"
+            class="justify-content-center text-2xl text-center">
+          {{ 'common.blankData' | translate }}
+        </td>
+      }
+    </tr>
+  </ng-template>
+  <ng-template let-state pTemplate="paginatorright">
+    {{ 'common.paginator' | translate: {first: state.first, rows: state.rows, total: state.totalRecords} }}
+  </ng-template>
+</p-table>
+
+<p-menu #menu [model]="contextAction" [popup]="true" appendTo="body" menuTranslate/>
+
+<ng-template #staticActions let-rowData>
+  @if (showEdit) {
+    <button (click)="editItem(rowData)" class="p-button-rounded p-button-text" icon="mdi {{iconEdit}}"
+            pButton type="button" tooltipPosition="top"
+            pTooltip="{{'common.tooltip.edit' | translate: {value: (name | translate)} }}"></button>
+  }
+  @if (showDelete) {
+    <button (click)="deleteItem(rowData)" class="p-button-rounded p-button-text" icon="mdi {{iconDelete}}"
+            pButton tooltipPosition="top" type="button"
+            pTooltip="{{'common.tooltip.delete' | translate: {value: (name | translate)} }}"></button>
+  }
+</ng-template>

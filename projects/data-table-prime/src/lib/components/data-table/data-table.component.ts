@@ -1,33 +1,25 @@
-import {
-  Component,
-  ContentChild,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  TemplateRef,
-  ViewChild
-} from '@angular/core';
+import {Component, ContentChild, ContentChildren, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-// primeng
-import {Table} from 'primeng/table';
-import {ConfirmationService, MenuItem} from 'primeng/api';
-// module extra
-import {TranslateService} from '@ngx-translate/core';
-// services
-import {BaseStoreServices} from '../../services/base.store.services';
-// models
-import {HeadersTable, RowReorder, TemplateSlot} from '../../models/table';
-import {TableLazyLoadEvent, TableRowReorderEvent} from 'primeng/table/table.interface';
+import {MenuItem} from 'primeng/api';
+import {Table, TableLazyLoadEvent, TableRowReorderEvent} from 'primeng/table';
+import {Menu} from 'primeng/menu';
+import {Subject, takeUntil} from 'rxjs';
+import {HeadersTable, RowReorder} from '../../models/table';
+import {TableExpansionDirective} from '../../directives/table-expansion.directive';
+import {TableFooterDirective} from '../../directives/table-footer.directive';
+import {TableRowDirective} from '../../directives/table-row.directive';
+
 
 @Component({
-  selector: 'data-table-prime',
-  templateUrl: './data-table-prime.component.html',
-  styleUrls: ['./data-table-prime.component.scss']
+  selector: 'c-data-table',
+  templateUrl: './data-table.component.html',
+  styleUrls: ['./data-table.component.scss']
 })
-export class DataTablePrimeComponent implements OnInit {
-
+export class DataTableComponent implements OnInit, OnDestroy {
+  /**
+   * Element ref to track in data table
+   */
+  @Input() dataKey = 'id';
   /**
    * Set custom css class to de table
    */
@@ -41,9 +33,9 @@ export class DataTablePrimeComponent implements OnInit {
    */
   @Input() rowExpansion = false;
   /**
-   * Inject template for row expansion
+   * Set mode row Footer in the table default is false
    */
-  @ContentChild('expansionSlot') expansionSlot!: TemplateRef<any>;
+  @Input() rowFooter = false;
   /**
    * For enable pagination table default value true
    */
@@ -59,11 +51,7 @@ export class DataTablePrimeComponent implements OnInit {
   /**
    * Service inject data from store
    */
-  @Input() service!: BaseStoreServices<any>;
-  /**
-   * Inject templates for custom columns
-   */
-  @Input() templateSlot: TemplateSlot[] = [];
+  @Input() service: BaseStoreServices<any> | StoreComponentService<any>;
   /**
    * List of items inside of Button Split type {@link MenuItem}
    */
@@ -77,21 +65,33 @@ export class DataTablePrimeComponent implements OnInit {
    */
   @Input() showCreate = true;
   /**
+   * Icon for create Button
+   */
+  @Input() iconCreate = 'mdi-plus';
+  /**
    * Show Edit Button Action
    */
   @Input() showEdit = true;
+  /**
+   * Icon for edit Button
+   */
+  @Input() iconEdit = 'mdi-pencil';
   /**
    * Show Delete Button Action
    */
   @Input() showDelete = true;
   /**
-   * Inject template for action extra
+   * Icon for delete Button
    */
-  @ContentChild('actionExtra') actionExtra!: TemplateRef<any>;
+  @Input() iconDelete = 'mdi-trash-can-outline';
   /**
    * List of source items optional use service
    */
-  @Input() items!: any[];
+  @Input() items: any[];
+  /**
+   * Refresh button
+   */
+  @Input() refreshBtn = true;
   /**
    * Toggle export button
    */
@@ -119,49 +119,61 @@ export class DataTablePrimeComponent implements OnInit {
   /**
    * Input for control search state
    */
-  @ViewChild('inputSearch', {static: false}) input!: ElementRef;
+  @ViewChild('inputSearch', {static: false}) input: ElementRef;
+  @ViewChild('menu', {static: false}) menu: Menu;
+  /**
+   * List of templates inside of table
+   */
+  @ContentChild(TableExpansionDirective) expansionRow!: TableExpansionDirective;
+  @ContentChild(TableFooterDirective) footerRow!: TableFooterDirective;
+  @ContentChildren(TableRowDirective) contentChildren!: QueryList<TableRowDirective>;
   /**
    * Contains the search value
    */
-  search: string = '';
+  search!: string;
+  /**
+   * Content all extra action in menu overflow for keep more clean the table
+   */
+  contextAction: MenuItem[] | undefined;
   /**
    * Set custom names to tooltips to the actions in table
    */
   name = '';
+  /**
+   * Keep all subscription of NgRx
+   * @protected ngUnsubscribe Subject boolean
+   */
+  protected ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
 
-
-  constructor(private confirmationService: ConfirmationService,
-              private translateService: TranslateService,
-              private routing: ActivatedRoute) {
+  constructor(private routing: ActivatedRoute,
+              private confirmationService: ConfirmServices) {
   }
 
   ngOnInit(): void {
     this.headers = this.headers.filter(header => header.visible);
+    if (this.action && this.headers.length) {
+      const {context}: HeadersTable = this.headers[this.headers.length - 1];
+      this.contextAction = context ?? undefined;
+    }
     /**
      * Extract metadata from routing
      */
     this.routing.data.subscribe((r: any) => this.name = r?.name);
   }
 
-  /**
-   * Search and Inject the correct template for the column
-   * @param value string
-   * @return An {@link TemplateRef<any>}
-   */
-  injectTemplate(value: string): TemplateRef<any> | null {
-    const slot = this.templateSlot.find(f => f.name === value);
-    return slot ? slot?.template : null;
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next(true);
+    this.ngUnsubscribe.complete();
   }
 
   /**
    * It's for lazy load of data, filters and sort elements direct in API server
-   * @param $event {@link LazyLoadEvent}
+   * @param $event {@link TableLazyLoadEvent}
    */
   loadCustomLazy($event: TableLazyLoadEvent): void {
     const {first, rows, globalFilter, sortField, sortOrder} = $event;
-    // @ts-ignore
     this.service.loadAll({
-      page: (first as number / (rows ? rows as number : 0)),
+      page: first as number / (rows as number),
       size: rows ? rows : 25,
       filter: globalFilter ? globalFilter as string : '',
       sort: sortField as string,
@@ -183,10 +195,12 @@ export class DataTablePrimeComponent implements OnInit {
 
   /**
    * Set the selected item in the store for future work
-   * @param event any
+   * @param event Event
+   * @param data any
    */
-  setSelectedRow(event: any): void {
-    this.service.setSelected(event);
+  setSelectedRow(event: any, data: any): void {
+    this.menu.toggle(event);
+    this.service.setSelected(data);
   }
 
   /**
@@ -212,71 +226,50 @@ export class DataTablePrimeComponent implements OnInit {
 
   /**
    * Confirm the action of delete before emit the event
-   * @param event {@link Event}
    * @param item any
    */
-  deleteItem(event: { target: any }, item: any): void {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('common.textConfirmDelete'),
-      acceptLabel: this.translateService.instant('common.yes'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      icon: 'mdi mdi-alert-outline',
-      acceptIcon: 'mdi mdi-check',
-      rejectIcon: 'mdi mdi-close',
-      rejectButtonStyleClass: 'p-button-outlined',
-      accept: () => {
-        this.delete.emit(item);
-        if (this.service) {
-          this.service.delete(item.id);
+  deleteItem(item: any): void {
+    this.confirmationService.deleteConfirm().pipe(
+      takeUntil(this.ngUnsubscribe),
+      confirmDialog(
+        () => {
+          this.delete.emit(item);
+          if (this.service) {
+            if (this.service instanceof BaseStoreServices) {
+              this.service.delete(item[this.dataKey]);
+            } else {
+              this.service.delete({id: item[this.dataKey]});
+            }
+          }
         }
-      }
-    });
-  }
-
-  /**
-   * Method make mix object width rowData and column configuration
-   * @param row any data
-   * @param column {@link HeadersTable}
-   * @return An combine object
-   */
-  rowAndColumn(row: any, column: HeadersTable): object {
-    return {...row, columnTable: column};
+      )
+    ).subscribe();
   }
 
   /**
    * Method recharges the data of the table
    */
   refreshContentData(dt: Table): void {
-    this.service.serverSide ? this.service.loadAll({
-      page: 0,
-      size: dt.rows,
-      filter: undefined,
-      sort: undefined,
-      direction: undefined
-    }) : this.service.loadAll();
+    this.service.serverSide ?
+      this.service.loadAll({page: 0, size: dt.rows, filter: undefined, sort: undefined, direction: undefined}) :
+      this.service.loadAll(undefined);
     this.input.nativeElement.value = '';
-    dt.filterGlobal('', 'contains');
+    dt.filters = {};
   }
 
   /**
    * Emit event drag and drop for row table
-   * @param event {@link TableRowReorderEvent}
+   * @param event TableRowReorderEvent
    * @param dt {@link Table}
    */
   rowReorder(event: TableRowReorderEvent, dt: Table): void {
-    const {dragIndex, dropIndex} = event;
-    this.onRowReorder.emit({
-      dragIndex: dragIndex as number,
-      dropIndex: dropIndex as number,
-      item: dt.value[dropIndex as number]
-    });
+    this.onRowReorder.emit({...event, item: dt.value[event.dropIndex as number]});
   }
 
   /**
    * Trigger the export feature
    */
   showPrintModal(): void {
-    this.export.emit();
+    this.export.emit(this.service.loadAllForExport());
   }
 }
-
