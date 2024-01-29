@@ -20,7 +20,6 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",

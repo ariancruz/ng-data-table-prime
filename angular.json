@@ -7,7 +7,7 @@
       "projectType": "library",
       "root": "projects/data-table-prime",
       "sourceRoot": "projects/data-table-prime/src",
-      "prefix": "lib",
+      "prefix": "data",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
