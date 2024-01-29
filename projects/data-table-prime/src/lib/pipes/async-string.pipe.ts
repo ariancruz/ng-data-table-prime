@@ -5,6 +5,8 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class AsyncStringPipe implements PipeTransform {
   transform(value: string | number | null | undefined): string {
-    return value ? value.toString() : '';
+    if (!value && typeof value !== 'number')
+      return '';
+    return String(value);
   }
 }

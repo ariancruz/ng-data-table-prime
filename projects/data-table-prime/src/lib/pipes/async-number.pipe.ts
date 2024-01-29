@@ -5,6 +5,10 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class AsyncNumberPipe implements PipeTransform {
   transform(value: number | null | undefined): number {
-    return value ? value : 0;
+
+    if (!value)
+      return 0;
+
+    return Number(value);
   }
 }

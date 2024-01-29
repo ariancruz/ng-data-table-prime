@@ -4,7 +4,17 @@ import {Pipe, PipeTransform} from '@angular/core';
   name: 'asyncBool'
 })
 export class AsyncBooleanPipe implements PipeTransform {
-  transform(value: boolean | null | undefined): boolean {
-    return value ? value : false;
+  transform(value: boolean | string | number | null | undefined): boolean {
+    if (!value)
+      return false;
+
+    if (typeof value === 'number') {
+      return  value === 1;
+    } else if (typeof value === 'string') {
+        return false;
+    } else {
+      return Boolean(value);
+    }
+  //  return false;
   }
 }
