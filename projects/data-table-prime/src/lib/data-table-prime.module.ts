@@ -15,17 +15,13 @@ import {TranslateModule} from '@ngx-translate/core';
 
 // Components
 import {DataTableComponent} from './components/data-table/data-table.component';
-// Pipes
-import {ColSpanPipe} from './pipes/col-span.pipe';
-import {ColHeaderPipe} from './pipes/col-header.pipe';
-import {AsyncTablePipe} from './pipes/async-table.pipe';
-import {AsyncNumberPipe} from './pipes/async-number.pipe';
-import {RowTemplatePipe} from './pipes/row-template.pipe';
+
 
 import {TableRowDirective} from './directives/table-row.directive';
 import {TableFooterDirective} from './directives/table-footer.directive';
 import {TableExpansionDirective} from './directives/table-expansion.directive';
-
+import {TablePipesModule} from './pipes/table-pipes.module';
+import {ColSpanPipe} from './pipes/col-span.pipe';
 
 @NgModule({
   declarations: [
@@ -36,10 +32,6 @@ import {TableExpansionDirective} from './directives/table-expansion.directive';
     TableExpansionDirective,
 
     ColSpanPipe,
-    ColHeaderPipe,
-    AsyncTablePipe,
-    AsyncNumberPipe,
-    RowTemplatePipe,
   ],
   imports: [
     CommonModule,
@@ -51,9 +43,12 @@ import {TableExpansionDirective} from './directives/table-expansion.directive';
     TableModule,
     TooltipModule,
     SplitButtonModule,
+
+    TablePipesModule
   ],
   exports: [
-    DataTableComponent
+    DataTableComponent,
+    TablePipesModule
   ]
 })
 export class DataTablePrimeModule {

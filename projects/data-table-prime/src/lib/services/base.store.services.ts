@@ -1,14 +1,14 @@
 import {Injectable} from '@angular/core';
 import {Observable, Subject} from 'rxjs';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {BaseStore} from '../models/store';
+import {BaseStoreI} from '../models/store';
 import {LazyLoadData} from '../models/table';
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class BaseStoreServices<T> implements BaseStore {
+export class BaseStoreServices<T> implements BaseStoreI {
   /**
    * Server side pagination and filter default value false
    */
@@ -70,7 +70,7 @@ export class BaseStoreServices<T> implements BaseStore {
   /**
    * Clear subscription
    */
-  ngOnDestroy(): void {
+  destroy(): void {
     this.ngUnsubscribe.next(true);
     this.ngUnsubscribe.complete();
   }
@@ -96,7 +96,7 @@ export class BaseStoreServices<T> implements BaseStore {
   update(data: any): void {
   }
 
-  delete(id: number): void {
+  delete(id: number | string): void {
   }
 
   openModalAddOrEdit(): void {

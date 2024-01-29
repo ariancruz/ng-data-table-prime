@@ -1,8 +1,7 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
-  name: 'asyncBool',
-  standalone: true
+  name: 'asyncBool'
 })
 export class AsyncBooleanPipe implements PipeTransform {
   transform(value: boolean | null | undefined): boolean {

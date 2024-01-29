@@ -9,5 +9,4 @@ export class RowTemplatePipe implements PipeTransform {
   transform(list: QueryList<TableRowDirective>, field: string): TableRowDirective | undefined {
     return list.find((f: TableRowDirective): boolean => f.name === field);
   }
-
 }

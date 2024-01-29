@@ -7,7 +7,7 @@ import {HeadersTable} from '../models/table';
 export class ColHeaderPipe implements PipeTransform {
 
   transform(value: any[]): HeadersTable[] {
-    return value as HeadersTable[];
+    return <HeadersTable[]>value;
   }
 
 }
