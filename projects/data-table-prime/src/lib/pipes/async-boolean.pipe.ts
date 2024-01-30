@@ -5,16 +5,15 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class AsyncBooleanPipe implements PipeTransform {
   transform(value: boolean | string | number | null | undefined): boolean {
-    if (!value)
-      return false;
-
-    if (typeof value === 'number') {
-      return  value === 1;
-    } else if (typeof value === 'string') {
+      if (value === null || value === undefined)
         return false;
-    } else {
-      return Boolean(value);
-    }
-  //  return false;
+
+      if (typeof value === 'number') {
+        return  value === 1;
+      } else if (typeof value === 'string') {
+          return false;
+      } else {
+        return Boolean(value);
+      }
   }
 }

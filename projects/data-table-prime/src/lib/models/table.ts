@@ -12,7 +12,6 @@ export interface HeadersTable {
   // optional
   pipe?: pipe;
   extraVal?: string;
-  inject?: boolean;
   class?: string;
   width?: number;
   sort?: boolean;
