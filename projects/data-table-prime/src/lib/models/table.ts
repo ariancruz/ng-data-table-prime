@@ -19,11 +19,6 @@ export interface HeadersTable {
   cFunc?: (data: any) => {};
 }
 
-export interface TemplateSlot {
-  name: string;
-  template: TemplateRef<any>;
-}
-
 export interface LazyLoadData {
   page: number;
   size: number;

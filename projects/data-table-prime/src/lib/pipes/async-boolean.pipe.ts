@@ -4,6 +4,10 @@ import {Pipe, PipeTransform} from '@angular/core';
   name: 'asyncBool'
 })
 export class AsyncBooleanPipe implements PipeTransform {
+  /**
+   * Pick the value and transform in Boolean
+   * @param value
+   */
   transform(value: boolean | string | number | null | undefined): boolean {
       if (value === null || value === undefined)
         return false;

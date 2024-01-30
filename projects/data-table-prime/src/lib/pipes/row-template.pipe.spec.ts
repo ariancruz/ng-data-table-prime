@@ -3,6 +3,8 @@ import {TableRowDirective} from '../directives/table-row.directive';
 import {RowTemplatePipe} from './row-template.pipe';
 
 
+/* todo terminar los test cuando se cree el componente de prueba */
+
 describe('RowTemplatePipe', () => {
 
   // Returns the first TableRowDirective in the QueryList that matches the given field name.

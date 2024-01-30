@@ -4,28 +4,20 @@ import {Signal} from "@angular/core";
 
 export interface BaseStoreI {
   /**
-   * Init the state of service
-   */
-  initState: () => void;
-  /**
-   * Load All data from server for print
-   */
-  loadAllForExport: () => Signal<any> | Observable<any>;
-  /**
    * Set selected item for actions
-   * @param data type T as any
+   * @param data type T as unknown
    */
-  setSelected: (data: any) => void;
+  setSelected: (data: unknown) => void;
   /**
    * Create a new Entity
-   * @param data type T as any
+   * @param data type T as unknown
    */
-  create: (data: any) => void;
+  create: (data: unknown) => void;
   /**
    * Update Entity
-   * @param data type T as any
+   * @param data type T as unknown
    */
-  update: (data: any) => void;
+  update: (data: unknown) => void;
   /**
    * Delete Entity by id
    * @param id number
@@ -47,4 +39,18 @@ export interface LoadAllRequestI {
    * @param data {@link LazyLoadData}
    */
   loadAll: (data?: LazyLoadData | Partial<LazyLoadData>) => void;
+}
+
+export interface InitStateI {
+  /**
+   * Init the state of service
+   */
+  initState: () => void;
+}
+
+export interface LoadAllForExportI {
+  /**
+   * Load All data from server for print
+   */
+  loadAllForExport: () => Signal<unknown> | Observable<unknown>;
 }

@@ -5,7 +5,11 @@ import {HeadersTable} from '../models/table';
   name: 'colHeader'
 })
 export class ColHeaderPipe implements PipeTransform {
-
+  /**
+   * Pick the value and check if every element is the same type of
+   * {@link HeadersTable} and return the array
+   * @param value
+   */
   transform(value: any[] | null | undefined): HeadersTable[] {
     if (!Array.isArray(value)) {
       return [];
