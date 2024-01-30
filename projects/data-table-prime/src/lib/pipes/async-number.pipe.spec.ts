@@ -1,6 +1,6 @@
 import {AsyncNumberPipe} from './async-number.pipe';
 
-describe('async-number.pipe', () => {
+describe('AsyncNumberPipe', () => {
 
   // Returns the input number if it is not null or undefined
   it('should return the input number if it is not null or undefined', () => {

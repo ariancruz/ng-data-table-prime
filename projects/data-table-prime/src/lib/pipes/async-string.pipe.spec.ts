@@ -2,7 +2,7 @@
 
 import {AsyncStringPipe} from './async-string.pipe';
 
-describe('async-string.pipe', () => {
+describe('AsyncStringPipe', () => {
 
   // Should return an empty string when given a null or undefined value
   it('should return an empty string when given a null value', () => {

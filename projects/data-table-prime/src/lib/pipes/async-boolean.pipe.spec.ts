@@ -1,6 +1,6 @@
 import {AsyncBooleanPipe} from './async-boolean.pipe';
 
-describe('async-boolean.pipe', () => {
+describe('AsyncBooleanPipe', () => {
   it('should return true when input is true', () => {
     const pipe = new AsyncBooleanPipe();
     expect(pipe.transform(true)).toBe(true);

@@ -1,6 +1,6 @@
 import {AsyncTablePipe} from './async-table.pipe';
 
-describe('async-table.pipe', () => {
+describe('AsyncTablePipe', () => {
 
   // Returns an empty array if the input value is null or undefined.
   it('should return an empty array when the input value is null', () => {
