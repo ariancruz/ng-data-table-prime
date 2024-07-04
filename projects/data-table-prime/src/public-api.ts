@@ -6,5 +6,5 @@
 export * from './lib/data-table-prime.module';
 export * from './lib/pipes/table-pipes.module';
 
-// services
-export * from './lib/services/base.store.services';
+// class store
+export * from './lib/store/store';

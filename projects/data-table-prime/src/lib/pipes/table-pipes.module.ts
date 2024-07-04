@@ -6,6 +6,7 @@ import {AsyncNumberPipe} from './async-number.pipe';
 import {AsyncStringPipe} from './async-string.pipe';
 import {RowTemplatePipe} from './row-template.pipe';
 import {AsyncBooleanPipe} from './async-boolean.pipe';
+import {PipesResolverPipe} from './pipes-resolver.pipe';
 
 
 @NgModule({
@@ -17,6 +18,8 @@ import {AsyncBooleanPipe} from './async-boolean.pipe';
     AsyncNumberPipe,
     AsyncStringPipe,
     AsyncBooleanPipe,
+
+    PipesResolverPipe,
   ],
   imports: [
     CommonModule
@@ -29,6 +32,7 @@ import {AsyncBooleanPipe} from './async-boolean.pipe';
     AsyncNumberPipe,
     AsyncStringPipe,
     AsyncBooleanPipe,
+    PipesResolverPipe,
   ],
 })
 export class TablePipesModule {

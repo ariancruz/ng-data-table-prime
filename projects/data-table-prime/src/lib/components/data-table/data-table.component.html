@@ -79,7 +79,7 @@
         <td [class]="col.class" [style.min-width.px]="col?.width">
           <!--Template por pipes-->
           @if (col?.pipe) {
-            <c-show-value [data]="{value: rowData[col.field], pipe: col.pipe, extraVal: col?.extraVal}"/>
+            <span [innerHTML]="rowData[col.field] | pipesResolver :  col.pipe : col?.extraVal"></span>
           } @else {
             <!--Template custom-->
             @if ((contentChildren | rowTemplate: col.field); as template) {
